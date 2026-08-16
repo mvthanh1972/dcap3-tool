@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Environmental Credit Evaluation Tool — DCAP3</title>
+<style>
+  :root {
+    --soil:    #5C4A2A;
+    --canola:  #C8A84B;
+    --sky:     #2B6CB0;
+    --sky-lt:  #EBF4FF;
+    --credit:  #276749;
+    --credit-lt:#E6F4ED;
+    --warn:    #C05621;
+    --warn-lt: #FFF5EB;
+    --neutral: #F7F5F0;
+    --border:  #D6CFC4;
+    --text:    #1A1614;
+    --muted:   #6B6460;
+    --white:   #FFFFFF;
+    --high-bg: #D1FAE5;
+    --med-bg:  #FEF3C7;
+    --low-bg:  #FEE2E2;
+    --high-c:  #065F46;
+    --med-c:   #92400E;
+    --low-c:   #991B1B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--neutral);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--soil);
+    color: var(--white);
+    padding: 0;
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 24px 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .header-icon {
+    width: 48px; height: 48px;
+    background: var(--canola);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .header-text h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .header-text p {
+    font-size: 0.8rem;
+    color: #C4BAB0;
+    margin-top: 2px;
+  }
+  .header-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.72rem;
+    color: #E8E2DA;
+    white-space: nowrap;
+  }
+
+  /* ── INTRO STRIP ── */
+  .intro-strip {
+    background: var(--sky);
+    color: var(--white);
+    padding: 12px 24px;
+  }
+  .intro-strip p {
+    max-width: 1100px;
+    margin: 0 auto;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    opacity: 0.92;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ── PANEL ── */
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .panel-header h2 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--soil);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .step-badge {
+    width: 22px; height: 22px;
+    background: var(--canola);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--soil);
+    flex-shrink: 0;
+  }
+  .panel-body { padding: 18px; }
+
+  /* ── SECTION GROUPS ── */
+  .section-group {
+    margin-bottom: 20px;
+  }
+  .section-group:last-child { margin-bottom: 0; }
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── FORM ELEMENTS ── */
+  .field { margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 5px;
+  }
+  .field label span {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 0.72rem;
+  }
+  .field select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 0.82rem;
+    background: var(--white);
+    color: var(--text);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235C4A2A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+    transition: border-color 0.15s;
+  }
+  .field select:focus {
+    outline: none;
+    border-color: var(--sky);
+    box-shadow: 0 0 0 3px rgba(43,108,176,0.12);
+  }
+  .field select.evidence-set {
+    border-color: var(--sky);
+    background-color: var(--sky-lt);
+  }
+
+  /* ── RUN BUTTON ── */
+  .run-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--credit);
+    color: var(--white);
+    border: none;
+    border-radius: 9px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .run-btn:hover { background: #1E5238; }
+  .run-btn:active { transform: scale(0.98); }
+
+  /* ── RESULTS ── */
+  .results-placeholder {
+    padding: 60px 24px;
+    text-align: center;
+    color: var(--muted);
+  }
+  .results-placeholder .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+  .results-placeholder p { font-size: 0.85rem; line-height: 1.6; }
+
+  /* ── OUTCOME CARDS ── */
+  .outcomes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .outcome-card {
+    border-radius: 10px;
+    padding: 16px;
+    border: 2px solid transparent;
+  }
+  .outcome-card.financial { background: var(--sky-lt); border-color: var(--sky); }
+  .outcome-card.environmental { background: var(--credit-lt); border-color: var(--credit); }
+  .outcome-card .oc-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 10px;
+  }
+  .outcome-card.financial .oc-label { color: var(--sky); }
+  .outcome-card.environmental .oc-label { color: var(--credit); }
+
+  /* ── PROB BARS ── */
+  .prob-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+  .prob-row:last-child { margin-bottom: 0; }
+  .prob-state-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    width: 52px;
+    flex-shrink: 0;
+  }
+  .prob-bar-track {
+    flex: 1;
+    height: 16px;
+    background: rgba(0,0,0,0.07);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .prob-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .bar-high { background: #10B981; }
+  .bar-med  { background: #F59E0B; }
+  .bar-low  { background: #EF4444; }
+  .prob-pct {
+    font-size: 0.75rem;
+    font-weight: 700;
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ── INTERPRETATION BOX ── */
+  .interp-box {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    border-left: 4px solid;
+  }
+  .interp-box.good    { background: #ECFDF5; border-color: #10B981; color: #065F46; }
+  .interp-box.caution { background: var(--warn-lt); border-color: var(--warn); color: var(--warn); }
+  .interp-box.neutral { background: var(--sky-lt); border-color: var(--sky); color: #1E4E8C; }
+
+  /* ── INTERMEDIATE NODES ── */
+  .intermediates {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .int-header {
+    padding: 10px 14px;
+    background: var(--neutral);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .int-body { padding: 12px 14px; display: none; }
+  .int-body.open { display: block; }
+  .int-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+  .int-row:last-child { border-bottom: none; }
+  .int-name {
+    font-size: 0.76rem;
+    color: var(--text);
+    flex: 1;
+  }
+  .int-bars {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+  .int-seg {
+    height: 12px;
+    border-radius: 3px;
+    min-width: 4px;
+  }
+  .int-val {
+    font-size: 0.7rem;
+    color: var(--muted);
+    width: 80px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ── RECOMMENDATION ── */
+  .rec-box {
+    background: linear-gradient(135deg, #1E3A2F 0%, #276749 100%);
+    color: var(--white);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .rec-box h4 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+  .rec-box p {
+    font-size: 0.84rem;
+    line-height: 1.6;
+    opacity: 0.95;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 24px 32px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.5;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    .outcomes-grid { grid-template-columns: 1fr; }
+    .header-badge { display: none; }
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-icon">🌾</div>
+    <div class="header-text">
+      <h1>Environmental Credit Evaluation Tool</h1>
+      <p>Bayesian Belief Network — Decision Support for Queensland Cropping Systems · UniSQ</p>
+    </div>
+    <div class="header-badge">University of Southern Queensland · 2026</div>
+  </div>
+</header>
+
+<div class="intro-strip">
+  <p>This tool helps extension officers and land managers evaluate the financial and environmental implications of integrating environmental credit schemes into climatically marginal Queensland cropping systems. Select your farm scenario and click <strong>Run Analysis</strong> to see probabilistic outcomes under uncertainty.</p>
+</div>
+
+<div class="layout">
+
+  <!-- LEFT: INPUTS -->
+  <div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="step-badge">1</div>
+        <h2>Farm Scenario</h2>
+      </div>
+      <div class="panel-body">
+
+        <div class="section-group">
+          <div class="section-label">Location &amp; Time</div>
+          <div class="field">
+            <label>Sub-region</label>
+            <select id="Sub_region" onchange="onEvidenceChange(this)">
+              <option value="">— Select —</option>
+              <option value="0">Balonne</option>
+              <option value="1">Central Highlands</option>
+              <option value="2">Maranoa</option>
+              <option value="3">Condamine</option>
+              <option value="4">Moonie</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Planning horizon <span>(scenario time period)</span></label>
+            <select id="Time_Period" onchange="onEvidenceChange(this)">
+              <option value="">— Select —</option>
+              <option value="0">Historical (1981–2019 baseline)</option>
+              <option value="1">Towards 2030</option>
+              <option value="2">Towards 2050</option>
+              <option value="3">Towards 2070</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-group">
+          <div class="section-label">Cropping System</div>
+          <div class="field">
+            <label>Summer crop</label>
+            <select id="Summer_Crop_Type" onchange="onEvidenceChange(this)">
+              <option value="">— Select —</option>
+              <option value="0">Cotton</option>
+              <option value="1">Sorghum</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Irrigation</label>
+            <select id="Irrigation" onchange="onEvidenceChange(this)">
+              <option value="">— Select —</option>
+              <option value="0">Yes — irrigated</option>
+              <option value="1">No — dryland</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Winter crop</label>
+            <select id="Winter_Crop" onchange="onEvidenceChange(this)">
+              <option value="">— Select —</option>
+              <option value="0">Wheat</option>
+              <option value="1">Chickpea</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-group">
+          <div class="section-label">Environmental Credit Scheme</div>
+          <div class="field">
+            <label>Carbon method</label>
+            <select id="Carbon_Method" onchange="onEvidenceChange(this)">
+              <option value="">— Select —</option>
+              <option value="0">Soil Carbon (practice change — no land diversion)</option>
+              <option value="1">Tree Planting (permanent land use change)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-group">
+          <div class="section-label">Climate Conditions <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:0.7rem">(optional — leave blank to use model priors)</span></div>
+          <div class="field">
+            <label>Current season rainfall <span>(if known)</span></label>
+            <select id="Summer_Rainfall_Anomaly" onchange="onEvidenceChange(this)">
+              <option value="">— Unknown / use model prior —</option>
+              <option value="0">Above average</option>
+              <option value="1">Average</option>
+              <option value="2">Below average</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Winter rainfall <span>(if known)</span></label>
+            <select id="Winter_Rainfall_Anomaly" onchange="onEvidenceChange(this)">
+              <option value="">— Unknown / use model prior —</option>
+              <option value="0">Above average</option>
+              <option value="1">Average</option>
+              <option value="2">Below average</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Carbon price outlook</label>
+            <select id="Carbon_Price" onchange="onEvidenceChange(this)">
+              <option value="">— Use time-period projection —</option>
+              <option value="0">High (&gt;$50/ACCU)</option>
+              <option value="1">Medium ($20–50/ACCU)</option>
+              <option value="2">Low (&lt;$20/ACCU)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="run-btn" onclick="runInference()">
+          <span id="btn-icon">▶</span>
+          <span id="btn-text">Run Analysis</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: RESULTS -->
+  <div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="step-badge">2</div>
+        <h2>Analysis Results</h2>
+      </div>
+      <div id="results-area">
+        <div class="results-placeholder">
+          <div class="icon">🌿</div>
+          <p>Select your farm scenario on the left and click <strong>Run Analysis</strong> to see probabilistic financial and environmental outcomes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <strong>Contact:</strong> Dr Thanh Mai — <a href="mailto:thanh.mai@unisq.edu.au" style="color:var(--sky)">thanh.mai@unisq.edu.au</a> — Centre for Applied Climate Sciences, University of Southern Queensland, Australia.
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// BBN DATA — DCAP3 v19
+// ═══════════════════════════════════════════════════════════════════════════════
+const NODES = {
+  Sub_region: { states:['Balonne', 'Central_Highlands', 'Maranoa', 'Condamine', 'Moonie'], parents:[], probs:[0.2,0.2,0.2,0.2,0.2] },
+  Time_Period: { states:['Historical', 'Towards_2030', 'Towards_2050', 'Towards_2070'], parents:[], probs:[0.25,0.25,0.25,0.25] },
+  Summer_Temperature_Anomaly: { states:['Above_Average', 'Average', 'Below_Average'], parents:['Sub_region', 'Time_Period'], probs:[0.304,0.392,0.304,0.49,0.287,0.223,0.675,0.183,0.142,0.92,0.05,0.03,0.321,0.358,0.321,0.502,0.263,0.235,0.683,0.167,0.15,0.92,0.05,0.03,0.316,0.368,0.316,0.498,0.27,0.232,0.681,0.172,0.147,0.92,0.05,0.03,0.316,0.395,0.289,0.484,0.298,0.218,0.653,0.2,0.147,0.905,0.055,0.04,0.304,0.392,0.304,0.404,0.392,0.204,0.504,0.392,0.104,0.654,0.316,0.03] },
+  Summer_Rainfall_Anomaly: { states:['Above_Average', 'Average', 'Below_Average'], parents:['Time_Period', 'Sub_region'], probs:[0.304,0.392,0.304,0.316,0.368,0.316,0.308,0.384,0.308,0.308,0.384,0.308,0.314,0.372,0.314,0.274,0.392,0.334,0.296,0.368,0.336,0.283,0.384,0.333,0.29,0.384,0.326,0.292,0.372,0.336,0.244,0.392,0.364,0.276,0.368,0.356,0.258,0.384,0.358,0.272,0.384,0.344,0.27,0.372,0.358,0.214,0.392,0.394,0.246,0.368,0.386,0.228,0.384,0.388,0.254,0.384,0.362,0.248,0.372,0.38] },
+  Winter_Rainfall_Anomaly: { states:['Above_Average', 'Average', 'Below_Average'], parents:['Sub_region', 'Time_Period'], probs:[0.304,0.392,0.304,0.279,0.392,0.329,0.254,0.392,0.354,0.224,0.392,0.384,0.308,0.384,0.308,0.29,0.384,0.326,0.272,0.384,0.344,0.248,0.384,0.368,0.316,0.368,0.316,0.294,0.368,0.338,0.272,0.368,0.36,0.246,0.368,0.386,0.308,0.384,0.308,0.29,0.384,0.326,0.272,0.384,0.344,0.254,0.384,0.362,0.306,0.388,0.306,0.284,0.388,0.328,0.262,0.388,0.35,0.24,0.388,0.372] },
+  Winter_Temperature_Anomaly: { states:['Above_Average', 'Average', 'Below_Average'], parents:['Sub_region', 'Time_Period'], probs:[0.304,0.392,0.304,0.582,0.235,0.183,0.861,0.078,0.061,0.92,0.05,0.03,0.296,0.408,0.296,0.578,0.245,0.177,0.859,0.082,0.059,0.92,0.05,0.03,0.308,0.384,0.308,0.585,0.23,0.185,0.862,0.077,0.061,0.92,0.05,0.03,0.289,0.395,0.316,0.496,0.28,0.224,0.703,0.165,0.132,0.92,0.05,0.03,0.304,0.392,0.304,0.404,0.392,0.204,0.504,0.392,0.104,0.654,0.316,0.03] },
+  Soil_Moisture: { states:['High', 'Medium', 'Low'], parents:['Summer_Rainfall_Anomaly', 'Summer_Temperature_Anomaly', 'Winter_Rainfall_Anomaly', 'Winter_Temperature_Anomaly'], probs:[0.43,0.38,0.19,0.49,0.38,0.13,0.667,0.243,0.09,0.39,0.38,0.23,0.359,0.383,0.258,0.429,0.406,0.165,0.346,0.316,0.338,0.33,0.349,0.321,0.33,0.42,0.25,0.507,0.363,0.13,0.567,0.363,0.07,0.744,0.226,0.03,0.467,0.363,0.17,0.437,0.366,0.197,0.507,0.389,0.104,0.423,0.299,0.278,0.407,0.332,0.261,0.407,0.403,0.19,0.671,0.229,0.1,0.731,0.229,0.04,0.907,0.093,-0.0,0.631,0.229,0.14,0.6,0.232,0.168,0.67,0.256,0.074,0.587,0.165,0.248,0.571,0.199,0.23,0.571,0.269,0.16,0.122,0.657,0.221,0.182,0.657,0.161,0.358,0.521,0.121,0.082,0.657,0.261,0.051,0.661,0.288,0.121,0.684,0.195,0.038,0.593,0.369,0.022,0.627,0.351,0.022,0.697,0.281,0.191,0.507,0.302,0.251,0.507,0.242,0.428,0.37,0.202,0.151,0.507,0.342,0.12,0.51,0.37,0.191,0.533,0.276,0.107,0.443,0.45,0.091,0.476,0.433,0.091,0.547,0.362,0.194,0.62,0.186,0.254,0.62,0.126,0.431,0.483,0.086,0.154,0.62,0.226,0.124,0.623,0.253,0.194,0.646,0.16,0.11,0.556,0.334,0.094,0.589,0.317,0.094,0.66,0.246,0.1,0.312,0.588,0.16,0.312,0.528,0.337,0.176,0.487,0.06,0.312,0.628,0.029,0.316,0.655,0.099,0.339,0.562,0.016,0.248,0.736,0.0,0.282,0.718,0.0,0.352,0.648,0.16,0.374,0.466,0.22,0.374,0.406,0.397,0.237,0.366,0.12,0.374,0.506,0.089,0.377,0.534,0.159,0.4,0.441,0.076,0.31,0.614,0.06,0.343,0.597,0.06,0.414,0.526,0.28,0.44,0.28,0.34,0.44,0.22,0.517,0.303,0.18,0.24,0.44,0.32,0.209,0.443,0.348,0.279,0.466,0.255,0.196,0.376,0.428,0.18,0.409,0.411,0.18,0.48,0.34] },
+  Winter_Crop: { states:['Wheat', 'Chickpea'], parents:[], probs:[0.7,0.3] },
+  Winter_Crop_GM: { states:['High','Medium','Low'], parents:['Sub_region','Winter_Crop','Soil_Moisture'], probs:[0.25,0.45,0.3,0.1,0.4,0.5,0.02,0.18,0.8,0.25,0.48,0.27,0.12,0.45,0.43,0.02,0.18,0.8,0.28,0.42,0.3,0.12,0.38,0.5,0.03,0.17,0.8,0.6,0.32,0.08,0.38,0.42,0.2,0.1,0.28,0.62,0.25,0.45,0.3,0.1,0.4,0.5,0.02,0.18,0.8,0.25,0.48,0.27,0.12,0.45,0.43,0.02,0.18,0.8,0.52,0.38,0.1,0.3,0.48,0.22,0.08,0.32,0.6,0.42,0.42,0.16,0.22,0.45,0.33,0.05,0.22,0.73,0.58,0.32,0.1,0.35,0.45,0.2,0.1,0.3,0.6,0.5,0.38,0.12,0.28,0.44,0.28,0.07,0.25,0.68] },
+  Summer_Crop_Type: { states:['Cotton', 'Sorghum'], parents:[], probs:[0.5,0.5] },
+  Irrigation: { states:['Yes', 'No'], parents:[], probs:[0.4,0.6] },
+  Summer_Crop_GM: { states:['High', 'Medium', 'Low'], parents:['Summer_Crop_Type', 'Irrigation', 'Summer_Temperature_Anomaly', 'Soil_Moisture'], probs:[0.6,0.3,0.1,0.65,0.28,0.07,0.7,0.23,0.07,0.72,0.22,0.06,0.75,0.19,0.06,0.78,0.17,0.05,0.8,0.15,0.05,0.8,0.15,0.05,0.8,0.15,0.05,0.25,0.35,0.4,0.1,0.35,0.55,0.02,0.18,0.8,0.42,0.38,0.2,0.22,0.4,0.38,0.05,0.25,0.7,0.55,0.33,0.12,0.32,0.42,0.26,0.1,0.35,0.55,0.3,0.55,0.15,0.32,0.55,0.13,0.35,0.55,0.1,0.38,0.52,0.1,0.4,0.52,0.08,0.42,0.5,0.08,0.45,0.48,0.07,0.45,0.48,0.07,0.45,0.48,0.07,0.05,0.4,0.55,0.02,0.28,0.7,0.0,0.15,0.85,0.15,0.55,0.3,0.05,0.45,0.5,0.0,0.2,0.8,0.22,0.58,0.2,0.1,0.55,0.35,0.02,0.28,0.7] },
+  Carbon_Method: { states:['Soil_Carbon', 'Tree_Planting'], parents:[], probs:[0.5,0.5] },
+  Carbon_Sequestration: { states:['High', 'Medium', 'Low'], parents:['Soil_Moisture', 'Carbon_Method'], probs:[0.35,0.42,0.23,0.45,0.38,0.17,0.25,0.45,0.3,0.28,0.48,0.24,0.18,0.4,0.42,0.08,0.32,0.6] },
+  Ecosystem_Service_Benefit: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method', 'Soil_Moisture'], probs:[0.3,0.5,0.2,0.2,0.5,0.3,0.1,0.45,0.45,0.55,0.35,0.1,0.4,0.42,0.18,0.22,0.45,0.33] },
+  Implementation_Costs: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method'], probs:[0.05,0.25,0.7,0.35,0.55,0.1] },
+  Carbon_Price: { states:['High', 'Medium', 'Low'], parents:['Time_Period'], probs:[0.1,0.35,0.55,0.25,0.45,0.3,0.45,0.38,0.17,0.6,0.3,0.1] },
+  Carbon_Credit_Value: { states:['High', 'Medium', 'Low'], parents:['Carbon_Sequestration', 'Implementation_Costs', 'Carbon_Price'], probs:[0.093,0.307,0.6,0.017,0.086,0.897,0.006,0.034,0.96,0.275,0.437,0.288,0.062,0.239,0.699,0.024,0.112,0.864,0.498,0.368,0.134,0.147,0.382,0.471,0.059,0.232,0.709,0.087,0.296,0.617,0.029,0.132,0.839,0.015,0.074,0.911,0.187,0.413,0.4,0.066,0.25,0.684,0.035,0.156,0.809,0.305,0.436,0.259,0.119,0.349,0.532,0.064,0.245,0.691,0.083,0.288,0.629,0.041,0.176,0.783,0.027,0.126,0.847,0.137,0.371,0.492,0.07,0.258,0.672,0.046,0.194,0.76,0.193,0.416,0.391,0.101,0.323,0.576,0.068,0.255,0.677] },
+  Opportunity_Cost: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method'], probs:[0.05,0.35,0.6,0.5,0.35,0.15] },
+  Biodiversity_Credit_Value: { states:['High', 'Medium', 'Low'], parents:[], probs:[0.3,0.4,0.3] },
+  Environmental_Outcome: { states:['High', 'Medium', 'Low'], parents:['Ecosystem_Service_Benefit', 'Biodiversity_Credit_Value', 'Carbon_Sequestration'], probs:[0.85,0.12,0.03,0.72,0.21,0.07,0.6,0.28,0.12,0.72,0.21,0.07,0.58,0.3,0.12,0.45,0.37,0.18,0.58,0.3,0.12,0.45,0.37,0.18,0.32,0.42,0.26,0.55,0.33,0.12,0.42,0.38,0.2,0.3,0.42,0.28,0.42,0.38,0.2,0.3,0.42,0.28,0.2,0.42,0.38,0.3,0.42,0.28,0.2,0.42,0.38,0.12,0.38,0.5,0.32,0.42,0.26,0.22,0.42,0.36,0.14,0.38,0.48,0.22,0.42,0.36,0.14,0.38,0.48,0.08,0.32,0.6,0.14,0.38,0.48,0.08,0.32,0.6,0.04,0.22,0.74] },
+  Financial_Benefit: { states:['High', 'Medium', 'Low'], parents:['Summer_Crop_GM', 'Carbon_Credit_Value', 'Winter_Crop_GM', 'Opportunity_Cost'], probs:[0.622,0.282,0.096,0.731,0.209,0.06,0.818,0.145,0.037,0.5,0.352,0.148,0.622,0.282,0.096,0.731,0.209,0.06,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.5,0.352,0.148,0.622,0.282,0.096,0.731,0.209,0.06,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.047,0.175,0.778,0.076,0.245,0.679,0.119,0.319,0.562,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.047,0.175,0.778,0.076,0.245,0.679,0.119,0.319,0.562,0.029,0.119,0.852,0.047,0.175,0.778,0.076,0.245,0.679] },
+};
+
+// Topological order for inference
+const TOPO_ORDER = [
+  'Sub_region','Time_Period','Summer_Rainfall_Anomaly','Summer_Temperature_Anomaly',
+  'Winter_Rainfall_Anomaly','Winter_Temperature_Anomaly','Soil_Moisture',
+  'Winter_Crop','Irrigation','Summer_Crop_Type','Carbon_Method',
+  'Summer_Crop_GM','Winter_Crop_GM','Carbon_Sequestration',
+  'Ecosystem_Service_Benefit','Implementation_Costs','Carbon_Price',
+  'Opportunity_Cost','Biodiversity_Credit_Value','Carbon_Credit_Value',
+  'Environmental_Outcome','Financial_Benefit'
+];
+
+// ── INFERENCE ENGINE (Variable Elimination / Forward Sampling) ────────────────
+function getCPTRow(node, parentStates) {
+  const d = NODES[node];
+  const ns = d.states.length;
+  if (d.parents.length === 0) return d.probs.slice(0, ns);
+  let idx = 0;
+  let stride = ns;
+  for (let i = d.parents.length - 1; i >= 0; i--) {
+    const p = d.parents[i];
+    const si = parentStates[p];
+    idx += si * stride;
+    stride *= NODES[p].states.length;
+  }
+  // reverse: parents listed first in CPT outer loop
+  // Re-compute correctly with outer=first parent
+  idx = 0;
+  let mult = 1;
+  for (let i = d.parents.length - 1; i >= 0; i--) {
+    idx += parentStates[d.parents[i]] * mult;
+    mult *= NODES[d.parents[i]].states.length;
+  }
+  return d.probs.slice(idx * ns, idx * ns + ns);
+}
+
+function forwardSample(evidence) {
+  // Monte Carlo forward sampling with evidence conditioning
+  const N = 50000;
+  const counts = {};
+  for (const n of TOPO_ORDER) counts[n] = new Array(NODES[n].states.length).fill(0);
+
+  for (let i = 0; i < N; i++) {
+    const sample = {};
+    let valid = true;
+    for (const node of TOPO_ORDER) {
+      const d = NODES[node];
+      const parentStates = {};
+      for (const p of d.parents) parentStates[p] = sample[p];
+      const row = getCPTRow(node, parentStates);
+      // Sample
+      let r = Math.random();
+      let chosen = row.length - 1;
+      let cum = 0;
+      for (let s = 0; s < row.length; s++) {
+        cum += row[s];
+        if (r <= cum) { chosen = s; break; }
+      }
+      // Check evidence
+      if (evidence[node] !== undefined && evidence[node] !== chosen) {
+        valid = false; break;
+      }
+      sample[node] = chosen;
+    }
+    if (valid) {
+      for (const node of TOPO_ORDER) counts[node][sample[node]]++;
+    }
+  }
+
+  // Normalize
+  const result = {};
+  for (const node of TOPO_ORDER) {
+    const total = counts[node].reduce((a,b)=>a+b,0);
+    result[node] = total > 0
+      ? counts[node].map(c => c/total)
+      : NODES[node].probs.slice(0, NODES[node].states.length).map((_,i,a) => a[i]/a.reduce((x,y)=>x+y,0));
+  }
+  return result;
+}
+
+// ── EVIDENCE TRACKING ────────────────────────────────────────────────────────
+function onEvidenceChange(sel) {
+  if (sel.value !== '') {
+    sel.classList.add('evidence-set');
+  } else {
+    sel.classList.remove('evidence-set');
+  }
+}
+
+function getEvidence() {
+  const ev = {};
+  const ids = ['Sub_region','Time_Period','Summer_Crop_Type','Irrigation','Winter_Crop',
+                'Carbon_Method','Summer_Rainfall_Anomaly','Winter_Rainfall_Anomaly','Carbon_Price'];
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el && el.value !== '') ev[id] = parseInt(el.value);
+  }
+  return ev;
+}
+
+// ── RENDERING ────────────────────────────────────────────────────────────────
+function pct(v) { return Math.round(v * 100); }
+
+function renderProbBars(probs, states, colors) {
+  return states.map((s, i) => {
+    const p = probs[i] || 0;
+    const label = s.replace(/_/g,' ');
+    return `
+      <div class="prob-row">
+        <div class="prob-state-label" style="color:${colors[i]}">${label}</div>
+        <div class="prob-bar-track">
+          <div class="prob-bar-fill ${['bar-high','bar-med','bar-low'][i]}"
+               style="width:${pct(p)}%"></div>
+        </div>
+        <div class="prob-pct" style="color:${colors[i]}">${pct(p)}%</div>
+      </div>`;
+  }).join('');
+}
+
+function getDominantState(probs) {
+  const maxIdx = probs.indexOf(Math.max(...probs));
+  return maxIdx; // 0=High, 1=Medium, 2=Low
+}
+
+function getInterpretation(fb, eo, ev) {
+  const fbHigh = fb[0], fbLow = fb[2];
+  const eoHigh = eo[0];
+  const hasCarbon = ev.Carbon_Method !== undefined;
+  const isTree = ev.Carbon_Method === 1;
+  const isSoilC = ev.Carbon_Method === 0;
+  const isBalonne = ev.Sub_region === 0;
+  const isCH = ev.Sub_region === 1;
+  const futureTP = ev.Time_Period >= 2;
+
+  let cls = 'neutral', text = '';
+
+  if (fbHigh >= 0.40) {
+    cls = 'good';
+    text = `<strong>Favourable financial outlook.</strong> There is a ${pct(fbHigh)}% probability of High Financial Benefit under this scenario. `;
+    if (isTree) text += 'Despite the opportunity cost of tree planting, the combination of carbon credit value and crop income appears sufficient to generate strong returns.';
+    else if (isSoilC) text += 'Soil Carbon\'s low opportunity cost allows crop income to contribute strongly to the overall financial outcome.';
+  } else if (fbLow >= 0.55) {
+    cls = 'caution';
+    text = `<strong>Financial risk is elevated.</strong> There is a ${pct(fbLow)}% probability of Low Financial Benefit under this scenario. `;
+    if (isTree && (isBalonne || isCH)) text += `This is consistent with the MS3bc finding that switching from cotton in ${isBalonne ? 'Balonne' : 'Central Highlands'} only shows value when ${isCH ? '60–80%' : '30–50%'} or more of years are low gross margin years.`;
+    else text += 'Consider whether the proportion of low gross margin years on this property justifies the transition to environmental credits.';
+    if (futureTP) text += ' Under future climate projections, rising carbon prices may partially offset declining crop margins — consider running the Towards 2070 scenario for comparison.';
+  } else {
+    cls = 'neutral';
+    text = `<strong>Mixed financial outlook.</strong> Financial Benefit is approximately equally distributed across High (${pct(fbHigh)}%), Medium (${pct(fb[1])}%), and Low (${pct(fbLow)}%) outcomes. `;
+    text += 'The financial case for environmental credits is sensitive to carbon price trajectory and local gross margin history. Recommend assessing the proportion of low gross margin years on the specific paddock.';
+  }
+
+  if (eoHigh >= 0.45) {
+    text += ` Environmental Outcome is strong (${pct(eoHigh)}% probability of High), reflecting positive ecosystem service and biodiversity co-benefits.`;
+  }
+
+  return `<div class="interp-box ${cls}">${text}</div>`;
+}
+
+function getRecommendation(result, ev) {
+  const fb = result.Financial_Benefit;
+  const eo = result.Environmental_Outcome;
+  const opc = result.Opportunity_Cost;
+  const ccv = result.Carbon_Credit_Value;
+  const isTree = ev.Carbon_Method === 1;
+  const isSoilC = ev.Carbon_Method === 0;
+  const fbDom = getDominantState(fb);
+  const eoDom = getDominantState(eo);
+
+  let rec = '';
+
+  if (fbDom === 0 && eoDom === 0) {
+    rec = 'Both financial and environmental outcomes are favourable under this scenario. The proposed environmental credit scheme appears viable. Recommend proceeding to detailed site assessment and scheme eligibility check.';
+  } else if (fbDom === 2 && eoDom === 0) {
+    rec = 'Environmental outcomes are strong but financial benefit is predominantly Low. ';
+    if (isTree) rec += 'The opportunity cost of permanent land diversion is the primary constraint. Consider whether Queensland Land Restoration Fund co-benefit payments ($47–$9,659/ha/yr) could offset this gap, or evaluate Soil Carbon as a lower-risk alternative.';
+    else rec += 'Consider whether rising carbon prices under future time periods would improve the financial case. Running a Towards 2030 or 2050 scenario may be informative.';
+  } else if (fbDom === 0 && eoDom === 2) {
+    rec = 'Financial benefit is strong but environmental outcomes are limited under this scenario. ';
+    rec += 'If environmental co-benefits are a priority (e.g., for LRF eligibility), consider Tree Planting as an alternative to Soil Carbon, noting the higher opportunity cost.';
+  } else {
+    rec = 'Both financial and environmental outcomes are uncertain under this scenario. ';
+    rec += 'Key variables driving this uncertainty are Carbon Credit Value (currently predominantly Low under average market conditions) and Opportunity Cost. ';
+    if (isTree) rec += 'Reassess when carbon prices are better established, or compare with Soil Carbon method which carries lower opportunity cost.';
+    else rec += 'Monitor carbon market developments. The financial case for Soil Carbon improves significantly if ACCU prices reach the High state (>$50/ACCU).';
+  }
+
+  return `<div class="rec-box"><h4>Recommended action</h4><p>${rec}</p></div>`;
+}
+
+function renderIntermediates(result) {
+  const show = [
+    ['Soil_Moisture', 'Soil Moisture'],
+    ['Summer_Crop_GM', 'Summer Crop Gross Margin'],
+    ['Winter_Crop_GM', 'Winter Crop Gross Margin'],
+    ['Carbon_Sequestration', 'Carbon Sequestration Potential'],
+    ['Carbon_Credit_Value', 'Carbon Credit Value'],
+    ['Opportunity_Cost', 'Opportunity Cost'],
+    ['Ecosystem_Service_Benefit', 'Ecosystem Service Benefit'],
+    ['Biodiversity_Credit_Value', 'Biodiversity Credit Value'],
+  ];
+  const colors = ['#10B981','#F59E0B','#EF4444'];
+  const rows = show.map(([node, label]) => {
+    const probs = result[node];
+    const ns = NODES[node].states.length;
+    const total = 120; // px
+    const bars = probs.map((p, i) => {
+      const w = Math.max(4, Math.round(p * total));
+      return `<div class="int-seg" style="width:${w}px;background:${colors[Math.min(i,2)]}"></div>`;
+    }).join('');
+    const vals = probs.map((p,i) => `<span style="color:${colors[Math.min(i,2)]}">${pct(p)}%</span>`).join(' ');
+    return `<div class="int-row">
+      <div class="int-name">${label}</div>
+      <div class="int-bars">${bars}</div>
+      <div class="int-val">${vals}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="intermediates">
+    <div class="int-header" onclick="toggleInt(this)">
+      <span>Intermediate node probabilities</span>
+      <span id="int-arrow">▼ show</span>
+    </div>
+    <div class="int-body" id="int-body">${rows}</div>
+  </div>`;
+}
+
+function toggleInt(el) {
+  const body = document.getElementById('int-body');
+  const arrow = document.getElementById('int-arrow');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▲ hide' : '▼ show';
+}
+
+// ── RUN ──────────────────────────────────────────────────────────────────────
+function runInference() {
+  const evidence = getEvidence();
+
+  // require at least sub-region, time period, carbon method
+  const required = ['Sub_region','Time_Period','Carbon_Method'];
+  const missing = required.filter(k => evidence[k] === undefined);
+  if (missing.length > 0) {
+    alert('Please select at minimum: Sub-region, Planning horizon, and Carbon Method.');
+    return;
+  }
+
+  // Show spinner
+  document.getElementById('btn-icon').innerHTML = '<span class="spinner"></span>';
+  document.getElementById('btn-text').textContent = 'Running…';
+
+  setTimeout(() => {
+    try {
+      const result = forwardSample(evidence);
+
+      const fb = result.Financial_Benefit;
+      const eo = result.Environmental_Outcome;
+      const fbColors = ['#065F46','#92400E','#991B1B'];
+      const eoColors = ['#065F46','#92400E','#991B1B'];
+
+      // Build scenario summary
+      const subNames = ['Balonne','Central Highlands','Maranoa','Condamine','Moonie'];
+      const tpNames  = ['Historical','Towards 2030','Towards 2050','Towards 2070'];
+      const cmNames  = ['Soil Carbon','Tree Planting'];
+      const subLabel = evidence.Sub_region !== undefined ? subNames[evidence.Sub_region] : '—';
+      const tpLabel  = evidence.Time_Period !== undefined ? tpNames[evidence.Time_Period] : '—';
+      const cmLabel  = evidence.Carbon_Method !== undefined ? cmNames[evidence.Carbon_Method] : '—';
+
+      document.getElementById('results-area').innerHTML = `
+        <div style="padding:18px">
+
+          <div style="background:var(--neutral);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:0.76rem;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap">
+            <span>📍 <strong>${subLabel}</strong></span>
+            <span>📅 <strong>${tpLabel}</strong></span>
+            <span>🌱 <strong>${cmLabel}</strong></span>
+            <span style="margin-left:auto;color:var(--credit)">Probabilistic results</span>
+          </div>
+
+          <div class="outcomes-grid">
+            <div class="outcome-card financial">
+              <div class="oc-label">💰 Financial Benefit</div>
+              ${renderProbBars(fb, ['High','Medium','Low'], fbColors)}
+            </div>
+            <div class="outcome-card environmental">
+              <div class="oc-label">🌿 Environmental Outcome</div>
+              ${renderProbBars(eo, ['High','Medium','Low'], eoColors)}
+            </div>
+          </div>
+
+          ${getInterpretation(fb, eo, evidence)}
+
+          ${renderIntermediates(result)}
+
+          ${getRecommendation(result, evidence)}
+
+          <p style="font-size:0.7rem;color:var(--muted);margin-top:14px;line-height:1.5">
+            <strong>Note:</strong> Results are probabilistic estimates from DCAP3 BBN model. Financial Benefit integrates crop gross margins, carbon credit value, and opportunity cost. Environmental Outcome integrates ecosystem service benefit, biodiversity credit value, and carbon sequestration. State definitions: High Financial Benefit &gt;$100/ha/yr net; Medium $40–100; Low &lt;$40. Switching threshold from MS3bc: $57/ha/yr average gross margin (no ESB); $101/ha/yr with +10% ESB. Climate CPTs were parameterised using BoM data (IDCJAC0001/0002, 1981–2019). Soil Moisture was validated using the CSIRO Indra API, and Carbon Credit Value was derived from the MS3bc PEV equation. This tool is for decision-support purposes only. Results are probabilistic and should be interpreted alongside professional agronomic and financial advice.
+          </p>
+        </div>`;
+
+    } catch(e) {
+      document.getElementById('results-area').innerHTML =
+        `<div style="padding:24px;color:red">Error: ${e.message}</div>`;
+    }
+
+    document.getElementById('btn-icon').textContent = '▶';
+    document.getElementById('btn-text').textContent = 'Run Analysis';
+  }, 50);
+}
+</script>
+</body>
+</html>
