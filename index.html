@@ -383,7 +383,11 @@
   }
 
   /* ── RESPONSIVE ── */
-  @media (max-width: 800px) {
+  .field-disabled { opacity: 0.38; pointer-events: none; }
+  .field-disabled select { background-color: var(--neutral); cursor: not-allowed; }
+  .future-note { font-size: 0.68rem; color: var(--warn); font-style: italic; margin-top: 4px; display: none; }
+  .field-disabled .future-note { display: block; }
+    @media (max-width: 800px) {
     .layout { grid-template-columns: 1fr; }
     .outcomes-grid { grid-template-columns: 1fr; }
     .header-badge { display: none; }
@@ -400,7 +404,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
-<body>
+<body onload="updateRainfallState(document.getElementById('Time_Period').value)">
 
 <header>
   <div class="header-inner">
@@ -443,7 +447,7 @@
           </div>
           <div class="field">
             <label>Planning horizon <span>(scenario time period)</span></label>
-            <select id="Time_Period" onchange="onEvidenceChange(this)">
+            <select id="Time_Period" onchange="onEvidenceChange(this); updateRainfallState(this.value)">
               <option value="">— Select —</option>
               <option value="0">Historical (1981–2019 baseline)</option>
               <option value="1">Towards 2030</option>
@@ -495,18 +499,20 @@
 
         <div class="section-group">
           <div class="section-label">Climate Conditions <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:0.7rem">(optional — leave blank to use model priors)</span></div>
-          <div class="field">
-            <label>Summer/wet season rainfall <span>(if known — leave blank for future time periods)</span></label>
-            <select id="Summer_Rainfall_Anomaly" onchange="onEvidenceChange(this)">
+          <div class="field" id="field-summer-rain">
+            <label>Summer/wet season rainfall <span>(if known)</span></label>
+            <div class="future-note">Not applicable for Towards 2050/2070 — model priors capture projected drying trends</div>
+            <select id="Summer_Rainfall_Anomaly" onchange="if(isRainfallDisabled()){this.value='';return;} onEvidenceChange(this)">
               <option value="">— Unknown / use model prior —</option>
               <option value="0">Above average</option>
               <option value="1">Average</option>
               <option value="2">Below average</option>
             </select>
           </div>
-          <div class="field">
-            <label>Winter/dry season rainfall <span>(if known — leave blank for future time periods)</span></label>
-            <select id="Winter_Rainfall_Anomaly" onchange="onEvidenceChange(this)">
+          <div class="field" id="field-winter-rain">
+            <label>Winter/dry season rainfall <span>(if known)</span></label>
+            <div class="future-note">Not applicable for Towards 2050/2070 — model priors capture projected drying trends</div>
+            <select id="Winter_Rainfall_Anomaly" onchange="if(isRainfallDisabled()){this.value='';return;} onEvidenceChange(this)">
               <option value="">— Unknown / use model prior —</option>
               <option value="0">Above average</option>
               <option value="1">Average</option>
@@ -816,6 +822,30 @@ function toggleInt(el) {
   const arrow = document.getElementById('int-arrow');
   body.classList.toggle('open');
   arrow.textContent = body.classList.contains('open') ? '▲ hide' : '▼ show';
+}
+
+// ── RAINFALL DISABLE FOR FUTURE TIME PERIODS ─────────────────────────────────
+function isRainfallDisabled() {
+  const tp = document.getElementById('Time_Period');
+  return tp && (tp.value === '2' || tp.value === '3');
+}
+
+function updateRainfallState(tpValue) {
+  const isFuture = tpValue === '2' || tpValue === '3';
+  const srField = document.getElementById('field-summer-rain');
+  const wrField = document.getElementById('field-winter-rain');
+  if (!srField || !wrField) return;
+  const srSel = document.getElementById('Summer_Rainfall_Anomaly');
+  const wrSel = document.getElementById('Winter_Rainfall_Anomaly');
+  if (isFuture) {
+    srField.classList.add('field-disabled');
+    wrField.classList.add('field-disabled');
+    srSel.value = ''; srSel.classList.remove('evidence-set');
+    wrSel.value = ''; wrSel.classList.remove('evidence-set');
+  } else {
+    srField.classList.remove('field-disabled');
+    wrField.classList.remove('field-disabled');
+  }
 }
 
 // ── RUN ──────────────────────────────────────────────────────────────────────
