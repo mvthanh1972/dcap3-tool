@@ -383,10 +383,6 @@
   }
 
   /* ── RESPONSIVE ── */
-  .field-disabled { opacity: 0.38; pointer-events: none; }
-  .field-disabled select { background-color: var(--neutral); cursor: not-allowed; }
-  .future-note { font-size: 0.68rem; color: var(--warn); font-style: italic; margin-top: 4px; display: none; }
-  .field-disabled .future-note { display: block; }
     @media (max-width: 800px) {
     .layout { grid-template-columns: 1fr; }
     .outcomes-grid { grid-template-columns: 1fr; }
@@ -404,7 +400,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
-<body onload="updateRainfallState(document.getElementById('Time_Period').value)">
+<body>
 
 <header>
   <div class="header-inner">
@@ -447,7 +443,7 @@
           </div>
           <div class="field">
             <label>Planning horizon <span>(scenario time period)</span></label>
-            <select id="Time_Period" onchange="onEvidenceChange(this); updateRainfallState(this.value)">
+            <select id="Time_Period" onchange="onEvidenceChange(this)">
               <option value="">— Select —</option>
               <option value="0">Historical (1981–2019 baseline)</option>
               <option value="1">Towards 2030</option>
@@ -493,42 +489,12 @@
               <option value="">— Select —</option>
               <option value="0">Soil Carbon (practice change — no land diversion)</option>
               <option value="1">Tree Planting (permanent land use change)</option>
+              <option value="2">Pasture Management (improved grazing management)</option>
             </select>
           </div>
         </div>
 
-        <div class="section-group">
-          <div class="section-label">Climate Conditions <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:0.7rem">(optional — leave blank to use model priors)</span></div>
-          <div class="field" id="field-summer-rain">
-            <label>Summer/wet season rainfall <span>(if known)</span></label>
-            <div class="future-note">Not applicable for Towards 2050/2070 — model priors capture projected drying trends</div>
-            <select id="Summer_Rainfall_Anomaly" onchange="if(isRainfallDisabled()){this.value='';return;} onEvidenceChange(this)">
-              <option value="">— Unknown / use model prior —</option>
-              <option value="0">Above average</option>
-              <option value="1">Average</option>
-              <option value="2">Below average</option>
-            </select>
-          </div>
-          <div class="field" id="field-winter-rain">
-            <label>Winter/dry season rainfall <span>(if known)</span></label>
-            <div class="future-note">Not applicable for Towards 2050/2070 — model priors capture projected drying trends</div>
-            <select id="Winter_Rainfall_Anomaly" onchange="if(isRainfallDisabled()){this.value='';return;} onEvidenceChange(this)">
-              <option value="">— Unknown / use model prior —</option>
-              <option value="0">Above average</option>
-              <option value="1">Average</option>
-              <option value="2">Below average</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Carbon price outlook</label>
-            <select id="Carbon_Price" onchange="onEvidenceChange(this)">
-              <option value="">— Use time-period projection —</option>
-              <option value="0">High (&gt;$50/ACCU)</option>
-              <option value="1">Medium ($20–50/ACCU)</option>
-              <option value="2">Low (&lt;$20/ACCU)</option>
-            </select>
-          </div>
-        </div>
+        
 
         <button class="run-btn" onclick="runInference()">
           <span id="btn-icon">▶</span>
@@ -574,19 +540,19 @@ const NODES = {
   Winter_Temperature_Anomaly: { states:['Above_Average', 'Average', 'Below_Average'], parents:['Sub_region', 'Time_Period'], probs:[0.304,0.392,0.304,0.582,0.235,0.183,0.861,0.078,0.061,0.92,0.05,0.03,0.296,0.408,0.296,0.578,0.245,0.177,0.859,0.082,0.059,0.92,0.05,0.03,0.308,0.384,0.308,0.585,0.23,0.185,0.862,0.077,0.061,0.92,0.05,0.03,0.289,0.395,0.316,0.496,0.28,0.224,0.703,0.165,0.132,0.92,0.05,0.03,0.304,0.392,0.304,0.404,0.392,0.204,0.504,0.392,0.104,0.654,0.316,0.03] },
   Soil_Moisture: { states:['High', 'Medium', 'Low'], parents:['Summer_Rainfall_Anomaly', 'Summer_Temperature_Anomaly', 'Winter_Rainfall_Anomaly', 'Winter_Temperature_Anomaly'], probs:[0.43,0.38,0.19,0.49,0.38,0.13,0.667,0.243,0.09,0.39,0.38,0.23,0.359,0.383,0.258,0.429,0.406,0.165,0.346,0.316,0.338,0.33,0.349,0.321,0.33,0.42,0.25,0.507,0.363,0.13,0.567,0.363,0.07,0.744,0.226,0.03,0.467,0.363,0.17,0.437,0.366,0.197,0.507,0.389,0.104,0.423,0.299,0.278,0.407,0.332,0.261,0.407,0.403,0.19,0.671,0.229,0.1,0.731,0.229,0.04,0.907,0.093,-0.0,0.631,0.229,0.14,0.6,0.232,0.168,0.67,0.256,0.074,0.587,0.165,0.248,0.571,0.199,0.23,0.571,0.269,0.16,0.122,0.657,0.221,0.182,0.657,0.161,0.358,0.521,0.121,0.082,0.657,0.261,0.051,0.661,0.288,0.121,0.684,0.195,0.038,0.593,0.369,0.022,0.627,0.351,0.022,0.697,0.281,0.191,0.507,0.302,0.251,0.507,0.242,0.428,0.37,0.202,0.151,0.507,0.342,0.12,0.51,0.37,0.191,0.533,0.276,0.107,0.443,0.45,0.091,0.476,0.433,0.091,0.547,0.362,0.194,0.62,0.186,0.254,0.62,0.126,0.431,0.483,0.086,0.154,0.62,0.226,0.124,0.623,0.253,0.194,0.646,0.16,0.11,0.556,0.334,0.094,0.589,0.317,0.094,0.66,0.246,0.1,0.312,0.588,0.16,0.312,0.528,0.337,0.176,0.487,0.06,0.312,0.628,0.029,0.316,0.655,0.099,0.339,0.562,0.016,0.248,0.736,0.0,0.282,0.718,0.0,0.352,0.648,0.16,0.374,0.466,0.22,0.374,0.406,0.397,0.237,0.366,0.12,0.374,0.506,0.089,0.377,0.534,0.159,0.4,0.441,0.076,0.31,0.614,0.06,0.343,0.597,0.06,0.414,0.526,0.28,0.44,0.28,0.34,0.44,0.22,0.517,0.303,0.18,0.24,0.44,0.32,0.209,0.443,0.348,0.279,0.466,0.255,0.196,0.376,0.428,0.18,0.409,0.411,0.18,0.48,0.34] },
   Winter_Crop: { states:['Wheat', 'Chickpea'], parents:[], probs:[0.7,0.3] },
-  Winter_Crop_GM: { states:['High','Medium','Low'], parents:['Sub_region','Winter_Crop','Soil_Moisture'], probs:[0.25,0.45,0.3,0.1,0.4,0.5,0.02,0.18,0.8,0.25,0.48,0.27,0.12,0.45,0.43,0.02,0.18,0.8,0.28,0.42,0.3,0.12,0.38,0.5,0.03,0.17,0.8,0.6,0.32,0.08,0.38,0.42,0.2,0.1,0.28,0.62,0.25,0.45,0.3,0.1,0.4,0.5,0.02,0.18,0.8,0.25,0.48,0.27,0.12,0.45,0.43,0.02,0.18,0.8,0.52,0.38,0.1,0.3,0.48,0.22,0.08,0.32,0.6,0.42,0.42,0.16,0.22,0.45,0.33,0.05,0.22,0.73,0.58,0.32,0.1,0.35,0.45,0.2,0.1,0.3,0.6,0.5,0.38,0.12,0.28,0.44,0.28,0.07,0.25,0.68] },
+  Winter_Crop_GM: { states:['High', 'Medium', 'Low'], parents:['Winter_Crop', 'Soil_Moisture'], probs:[0.376,0.404,0.220,0.194,0.422,0.384,0.050,0.230,0.720,0.404,0.416,0.180,0.224,0.442,0.334,0.052,0.222,0.726] },
   Summer_Crop_Type: { states:['Cotton', 'Sorghum'], parents:[], probs:[0.5,0.5] },
   Irrigation: { states:['Yes', 'No'], parents:[], probs:[0.4,0.6] },
   Summer_Crop_GM: { states:['High', 'Medium', 'Low'], parents:['Summer_Crop_Type', 'Irrigation', 'Summer_Temperature_Anomaly', 'Soil_Moisture'], probs:[0.6,0.3,0.1,0.65,0.28,0.07,0.7,0.23,0.07,0.72,0.22,0.06,0.75,0.19,0.06,0.78,0.17,0.05,0.8,0.15,0.05,0.8,0.15,0.05,0.8,0.15,0.05,0.25,0.35,0.4,0.1,0.35,0.55,0.02,0.18,0.8,0.42,0.38,0.2,0.22,0.4,0.38,0.05,0.25,0.7,0.55,0.33,0.12,0.32,0.42,0.26,0.1,0.35,0.55,0.3,0.55,0.15,0.32,0.55,0.13,0.35,0.55,0.1,0.38,0.52,0.1,0.4,0.52,0.08,0.42,0.5,0.08,0.45,0.48,0.07,0.45,0.48,0.07,0.45,0.48,0.07,0.05,0.4,0.55,0.02,0.28,0.7,0.0,0.15,0.85,0.15,0.55,0.3,0.05,0.45,0.5,0.0,0.2,0.8,0.22,0.58,0.2,0.1,0.55,0.35,0.02,0.28,0.7] },
-  Carbon_Method: { states:['Soil_Carbon', 'Tree_Planting'], parents:[], probs:[0.5,0.5] },
-  Carbon_Sequestration: { states:['High', 'Medium', 'Low'], parents:['Soil_Moisture', 'Carbon_Method'], probs:[0.35,0.42,0.23,0.45,0.38,0.17,0.25,0.45,0.3,0.28,0.48,0.24,0.18,0.4,0.42,0.08,0.32,0.6] },
-  Ecosystem_Service_Benefit: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method', 'Soil_Moisture'], probs:[0.3,0.5,0.2,0.2,0.5,0.3,0.1,0.45,0.45,0.55,0.35,0.1,0.4,0.42,0.18,0.22,0.45,0.33] },
-  Implementation_Costs: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method'], probs:[0.05,0.25,0.7,0.35,0.55,0.1] },
+  Carbon_Method: { states:['Soil_Carbon', 'Tree_Planting', 'Pasture_Management'], parents:[], probs:[0.333,0.334,0.333] },
+  Carbon_Sequestration: { states:['High', 'Medium', 'Low'], parents:['Soil_Moisture', 'Carbon_Method'], probs:[0.35,0.42,0.23,0.45,0.38,0.17,0.30,0.43,0.27,0.25,0.45,0.30,0.28,0.48,0.24,0.20,0.45,0.35,0.18,0.40,0.42,0.08,0.32,0.60,0.10,0.35,0.55] },
+  Ecosystem_Service_Benefit: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method', 'Soil_Moisture'], probs:[0.30,0.50,0.20,0.20,0.50,0.30,0.10,0.45,0.45,0.55,0.35,0.10,0.40,0.42,0.18,0.22,0.45,0.33,0.38,0.45,0.17,0.28,0.48,0.24,0.14,0.45,0.41] },
+  Implementation_Costs: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method'], probs:[0.05,0.25,0.70, 0.35,0.55,0.10, 0.10,0.45,0.45] },
   Carbon_Price: { states:['High', 'Medium', 'Low'], parents:['Time_Period'], probs:[0.1,0.35,0.55,0.25,0.45,0.3,0.45,0.38,0.17,0.6,0.3,0.1] },
   Carbon_Credit_Value: { states:['High', 'Medium', 'Low'], parents:['Carbon_Sequestration', 'Implementation_Costs', 'Carbon_Price'], probs:[0.093,0.307,0.6,0.017,0.086,0.897,0.006,0.034,0.96,0.275,0.437,0.288,0.062,0.239,0.699,0.024,0.112,0.864,0.498,0.368,0.134,0.147,0.382,0.471,0.059,0.232,0.709,0.087,0.296,0.617,0.029,0.132,0.839,0.015,0.074,0.911,0.187,0.413,0.4,0.066,0.25,0.684,0.035,0.156,0.809,0.305,0.436,0.259,0.119,0.349,0.532,0.064,0.245,0.691,0.083,0.288,0.629,0.041,0.176,0.783,0.027,0.126,0.847,0.137,0.371,0.492,0.07,0.258,0.672,0.046,0.194,0.76,0.193,0.416,0.391,0.101,0.323,0.576,0.068,0.255,0.677] },
-  Opportunity_Cost: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method'], probs:[0.05,0.35,0.6,0.5,0.35,0.15] },
-  Biodiversity_Credit_Value: { states:['High', 'Medium', 'Low'], parents:[], probs:[0.3,0.4,0.3] },
-  Environmental_Outcome: { states:['High', 'Medium', 'Low'], parents:['Ecosystem_Service_Benefit', 'Biodiversity_Credit_Value', 'Carbon_Sequestration'], probs:[0.85,0.12,0.03,0.72,0.21,0.07,0.6,0.28,0.12,0.72,0.21,0.07,0.58,0.3,0.12,0.45,0.37,0.18,0.58,0.3,0.12,0.45,0.37,0.18,0.32,0.42,0.26,0.55,0.33,0.12,0.42,0.38,0.2,0.3,0.42,0.28,0.42,0.38,0.2,0.3,0.42,0.28,0.2,0.42,0.38,0.3,0.42,0.28,0.2,0.42,0.38,0.12,0.38,0.5,0.32,0.42,0.26,0.22,0.42,0.36,0.14,0.38,0.48,0.22,0.42,0.36,0.14,0.38,0.48,0.08,0.32,0.6,0.14,0.38,0.48,0.08,0.32,0.6,0.04,0.22,0.74] },
+  Opportunity_Cost: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method'], probs:[0.05,0.35,0.60, 0.50,0.35,0.15, 0.15,0.40,0.45] },
+  
+  Environmental_Outcome: { states:['High', 'Medium', 'Low'], parents:['Ecosystem_Service_Benefit', 'Carbon_Sequestration'], probs:[0.717,0.210,0.073,0.583,0.294,0.123,0.457,0.356,0.187,0.423,0.377,0.200,0.307,0.406,0.287,0.207,0.406,0.387,0.227,0.406,0.367,0.147,0.373,0.480,0.087,0.306,0.607] },
   Financial_Benefit: { states:['High', 'Medium', 'Low'], parents:['Summer_Crop_GM', 'Carbon_Credit_Value', 'Winter_Crop_GM', 'Opportunity_Cost'], probs:[0.622,0.282,0.096,0.731,0.209,0.06,0.818,0.145,0.037,0.5,0.352,0.148,0.622,0.282,0.096,0.731,0.209,0.06,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.5,0.352,0.148,0.622,0.282,0.096,0.731,0.209,0.06,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.047,0.175,0.778,0.076,0.245,0.679,0.119,0.319,0.562,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.047,0.175,0.778,0.076,0.245,0.679,0.119,0.319,0.562,0.029,0.119,0.852,0.047,0.175,0.778,0.076,0.245,0.679] },
 };
 
@@ -597,7 +563,7 @@ const TOPO_ORDER = [
   'Winter_Crop','Irrigation','Summer_Crop_Type','Carbon_Method',
   'Summer_Crop_GM','Winter_Crop_GM','Carbon_Sequestration',
   'Ecosystem_Service_Benefit','Implementation_Costs','Carbon_Price',
-  'Opportunity_Cost','Biodiversity_Credit_Value','Carbon_Credit_Value',
+  'Opportunity_Cost','Carbon_Credit_Value',
   'Environmental_Outcome','Financial_Benefit'
 ];
 
@@ -681,7 +647,7 @@ function onEvidenceChange(sel) {
 function getEvidence() {
   const ev = {};
   const ids = ['Sub_region','Time_Period','Summer_Crop_Type','Irrigation','Winter_Crop',
-                'Carbon_Method','Summer_Rainfall_Anomaly','Winter_Rainfall_Anomaly','Carbon_Price'];
+                'Carbon_Method','Carbon_Price'];
   for (const id of ids) {
     const el = document.getElementById(id);
     if (el && el.value !== '') ev[id] = parseInt(el.value);
@@ -789,7 +755,7 @@ function renderIntermediates(result) {
     ['Carbon_Credit_Value', 'Carbon Credit Value'],
     ['Opportunity_Cost', 'Opportunity Cost'],
     ['Ecosystem_Service_Benefit', 'Ecosystem Service Benefit'],
-    ['Biodiversity_Credit_Value', 'Biodiversity Credit Value'],
+    
   ];
   const colors = ['#10B981','#F59E0B','#EF4444'];
   const rows = show.map(([node, label]) => {
@@ -824,31 +790,6 @@ function toggleInt(el) {
   arrow.textContent = body.classList.contains('open') ? '▲ hide' : '▼ show';
 }
 
-// ── RAINFALL DISABLE FOR FUTURE TIME PERIODS ─────────────────────────────────
-function isRainfallDisabled() {
-  const tp = document.getElementById('Time_Period');
-  return tp && (tp.value === '2' || tp.value === '3');
-}
-
-function updateRainfallState(tpValue) {
-  const isFuture = tpValue === '2' || tpValue === '3';
-  const srField = document.getElementById('field-summer-rain');
-  const wrField = document.getElementById('field-winter-rain');
-  if (!srField || !wrField) return;
-  const srSel = document.getElementById('Summer_Rainfall_Anomaly');
-  const wrSel = document.getElementById('Winter_Rainfall_Anomaly');
-  if (isFuture) {
-    srField.classList.add('field-disabled');
-    wrField.classList.add('field-disabled');
-    srSel.value = ''; srSel.classList.remove('evidence-set');
-    wrSel.value = ''; wrSel.classList.remove('evidence-set');
-  } else {
-    srField.classList.remove('field-disabled');
-    wrField.classList.remove('field-disabled');
-  }
-}
-
-// ── RUN ──────────────────────────────────────────────────────────────────────
 function runInference() {
   const evidence = getEvidence();
 
