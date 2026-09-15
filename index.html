@@ -592,50 +592,59 @@ function getCPTRow(node, parentStates) {
 }
 
 function forwardSample(evidence) {
-  // Monte Carlo forward sampling with evidence conditioning
+  // Likelihood Weighting — 100% acceptance rate, much more efficient than rejection sampling
   const N = 50000;
   const counts = {};
-  for (const n of TOPO_ORDER) counts[n] = new Array(NODES[n].states.length).fill(0);
+  for (const n of TOPO_ORDER) {
+    counts[n] = new Array(NODES[n].states.length).fill(0);
+  }
 
   for (let i = 0; i < N; i++) {
     const sample = {};
-    let valid = true;
+    let weight = 1.0;
+
     for (const node of TOPO_ORDER) {
       const d = NODES[node];
       const parentStates = {};
       for (const p of d.parents) parentStates[p] = sample[p];
       const row = getCPTRow(node, parentStates);
-      // Sample
-      let r = Math.random();
-      let chosen = row.length - 1;
-      let cum = 0;
-      for (let s = 0; s < row.length; s++) {
-        cum += row[s];
-        if (r <= cum) { chosen = s; break; }
+
+      if (evidence[node] !== undefined) {
+        // Evidence node: fix state, multiply weight by its probability
+        sample[node] = evidence[node];
+        weight *= row[evidence[node]];
+      } else {
+        // Non-evidence node: sample from CPT row
+        let r = Math.random();
+        let chosen = row.length - 1;
+        let cum = 0;
+        for (let s = 0; s < row.length; s++) {
+          cum += row[s];
+          if (r <= cum) { chosen = s; break; }
+        }
+        sample[node] = chosen;
       }
-      // Check evidence
-      if (evidence[node] !== undefined && evidence[node] !== chosen) {
-        valid = false; break;
-      }
-      sample[node] = chosen;
     }
-    if (valid) {
-      for (const node of TOPO_ORDER) counts[node][sample[node]]++;
+
+    // Accumulate weighted counts
+    if (weight > 0) {
+      for (const node of TOPO_ORDER) {
+        counts[node][sample[node]] += weight;
+      }
     }
   }
 
   // Normalize
   const result = {};
   for (const node of TOPO_ORDER) {
-    const total = counts[node].reduce((a,b)=>a+b,0);
+    const total = counts[node].reduce((a, b) => a + b, 0);
     result[node] = total > 0
-      ? counts[node].map(c => c/total)
-      : NODES[node].probs.slice(0, NODES[node].states.length).map((_,i,a) => a[i]/a.reduce((x,y)=>x+y,0));
+      ? counts[node].map(c => c / total)
+      : NODES[node].states.map(() => 1 / NODES[node].states.length);
   }
   return result;
 }
 
-// ── EVIDENCE TRACKING ────────────────────────────────────────────────────────
 function onEvidenceChange(sel) {
   if (sel.value !== '') {
     sel.classList.add('evidence-set');
