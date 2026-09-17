@@ -414,7 +414,7 @@
 </header>
 
 <div class="intro-strip">
-  <p>This tool helps extension officers and land managers evaluate the financial and environmental implications of integrating environmental credit schemes into climatically marginal Queensland cropping systems. Select your farm scenario and click <strong>Run Analysis</strong> to see probabilistic outcomes under uncertainty.</p>
+  <p>This tool helps landholders and advisers evaluate the financial and environmental implications of integrating environmental credit schemes into climatically marginal Queensland cropping systems. Select your farm scenario and click <strong>Run Analysis</strong> to see probabilistic outcomes under uncertainty.</p>
 </div>
 
 <div class="layout">
@@ -689,38 +689,96 @@ function getDominantState(probs) {
 }
 
 function getInterpretation(fb, eo, ev) {
-  const fbHigh = fb[0], fbLow = fb[2];
-  const eoHigh = eo[0];
-  const hasCarbon = ev.Carbon_Method !== undefined;
-  const isTree = ev.Carbon_Method === 1;
-  const isSoilC = ev.Carbon_Method === 0;
-  const isBalonne = ev.Sub_region === 0;
-  const isCH = ev.Sub_region === 1;
+  const fbH = fb[0], fbM = fb[1], fbL = fb[2];
+  const eoH = eo[0], eoM = eo[1], eoL = eo[2];
+  const isTree   = ev.Carbon_Method === 1;
+  const isSoilC  = ev.Carbon_Method === 0;
+  const isPasture= ev.Carbon_Method === 2;
   const futureTP = ev.Time_Period >= 2;
+  const isBalonne= ev.Sub_region === 0;
+  const isCH     = ev.Sub_region === 1;
 
-  let cls = 'neutral', text = '';
+  // --- Helper: describe a three-state distribution in plain English ---
+  function describeDistribution(h, m, l, label) {
+    const dominant = h >= m && h >= l ? 'high' : l >= m && l >= h ? 'low' : 'medium';
+    const gap = Math.max(h,m,l) - [h,m,l].reduce((a,b) => a + b, 0) / 3;
+    const spread = Math.max(h,m,l) - Math.min(h,m,l);
+    let desc = '';
 
-  if (fbHigh >= 0.40) {
+    if (dominant === 'high' && h >= 0.50) {
+      desc = `${label} is more likely to be High (${pct(h)}%) than not.`;
+    } else if (dominant === 'high' && h >= 0.38) {
+      if (spread < 0.15) {
+        desc = `${label} is spread fairly evenly across outcomes, with High (${pct(h)}%) only slightly ahead of Medium (${pct(m)}%) and Low (${pct(l)}%).`;
+      } else {
+        desc = `High ${label} (${pct(h)}%) is the most likely single outcome, though Medium (${pct(m)}%) and Low (${pct(l)}%) together account for most of the probability.`;
+      }
+    } else if (dominant === 'low' && l >= 0.50) {
+      desc = `${label} is more likely to be Low (${pct(l)}%) than not.`;
+    } else if (dominant === 'low' && l >= 0.38) {
+      if (spread < 0.15) {
+        desc = `${label} is spread fairly evenly across outcomes, with Low (${pct(l)}%) slightly ahead of Medium (${pct(m)}%) and High (${pct(h)}%).`;
+      } else {
+        desc = `Low ${label} (${pct(l)}%) is the most likely single outcome, with meaningful chances of Medium (${pct(m)}%) or High (${pct(h)}%) outcomes.`;
+      }
+    } else if (dominant === 'medium' && m >= 0.40) {
+      desc = `${label} is most likely to be Medium (${pct(m)}%), with roughly equal chances of High (${pct(h)}%) and Low (${pct(l)}%).`;
+    } else if (spread < 0.12) {
+      desc = `${label} is highly uncertain — High (${pct(h)}%), Medium (${pct(m)}%), and Low (${pct(l)}%) outcomes are all roughly equally likely.`;
+    } else {
+      // Low dominant but not very strong, or complex spread
+      desc = `${label} tends toward Low (${pct(l)}%), though there is a substantial chance of Medium (${pct(m)}%) or High (${pct(h)}%) outcomes.`;
+    }
+    return desc;
+  }
+
+  // --- Financial Benefit narrative ---
+  let cls = 'neutral';
+  let fbText = '';
+
+  if (fbH >= 0.50) {
     cls = 'good';
-    text = `<strong>Looks financially promising.</strong> There is a ${pct(fbHigh)}% probability of High Financial Benefit under this scenario. `;
-    if (isTree) text += 'Despite the opportunity cost of tree planting, the combination of carbon credit value and crop income appears sufficient to generate strong returns.';
-    else if (isSoilC) text += 'Soil Carbon\'s low opportunity cost allows crop income to contribute strongly to the overall financial outcome.';
-  } else if (fbLow >= 0.55) {
+    fbText = `<strong>The financial picture looks promising.</strong> High Financial Benefit is the most likely outcome (${pct(fbH)}%). `;
+    if (isSoilC) fbText += 'Soil Carbon carries a low opportunity cost, which means crop income continues to contribute alongside carbon credit earnings.';
+    else if (isTree) fbText += 'Despite the opportunity cost of permanent land conversion, the carbon credit value appears sufficient to deliver a strong financial return under this scenario.';
+    else fbText += 'Pasture management carries moderate opportunity costs, and the carbon income appears sufficient to make this a financially viable option.';
+  } else if (fbL >= 0.55) {
     cls = 'caution';
-    text = `<strong>Financial returns are more likely to be lower.</strong> There is a ${pct(fbLow)}% probability of Low Financial Benefit under this scenario. `;
-    if (isTree && (isBalonne || isCH)) text += `This is consistent with the MS3bc finding that switching from cotton in ${isBalonne ? 'Balonne' : 'Central Highlands'} only shows value when ${isCH ? '60–80%' : '30–50%'} or more of years are low gross margin years.`;
-    else text += 'Consider whether the proportion of low gross margin years on this property justifies the transition to environmental credits.';
-    if (futureTP) text += ' Under future climate projections, rising carbon prices may partially offset declining crop margins — consider running the Towards 2070 scenario for comparison.';
+    fbText = `<strong>The financial returns are more likely to be low.</strong> There is a ${pct(fbL)}% chance of Low Financial Benefit under this scenario. `;
+    if (fbH >= 0.20) fbText += `However, a ${pct(fbH)}% chance of High Financial Benefit means this is not a clear-cut situation — the outcome is sensitive to carbon price and your farm's gross margin history. `;
+    if (isTree && (isBalonne || isCH)) {
+      fbText += `This is broadly consistent with research suggesting that tree planting in ${isBalonne ? 'Balonne' : 'Central Highlands'} shows financial value mainly in years when cropping margins are already low. `;
+    } else {
+      fbText += 'It is worth asking yourself how often you experience low gross margin years on this property — the more frequently that occurs, the stronger the financial case for environmental credits. ';
+    }
+    if (futureTP) fbText += 'Under a Towards 2050 or 2070 scenario, rising carbon prices may improve this picture.';
   } else {
+    // Genuinely mixed — describe the actual shape
+    const dominant = fbH >= fbL ? 'high' : fbL >= fbH ? 'low' : 'medium';
     cls = 'neutral';
-    text = `<strong>Mixed financial outlook.</strong> Financial Benefit is fairly evenly spread across High (${pct(fbHigh)}%), Medium (${pct(fb[1])}%), and Low (${pct(fbLow)}%) outcomes. The financial case for environmental credits is sensitive to how carbon price may change in future and your specific crop gross margin history. Please consider what proportion of years you experience low gross margins on your farm.`;
+    if (dominant === 'low') {
+      fbText = `<strong>Mixed financial outlook.</strong> Low Financial Benefit (${pct(fbL)}%) is the most likely outcome, though High (${pct(fbH)}%) and Medium (${pct(fbM)}%) are both possible. `;
+    } else if (dominant === 'high') {
+      fbText = `<strong>Mixed financial outlook.</strong> High Financial Benefit (${pct(fbH)}%) is the most common outcome, but Low (${pct(fbL)}%) and Medium (${pct(fbM)}%) account for most of the remaining probability. `;
+    } else {
+      fbText = `<strong>Mixed financial outlook.</strong> Medium Financial Benefit (${pct(fbM)}%) is the most likely outcome, with High (${pct(fbH)}%) and Low (${pct(fbL)}%) fairly close behind. `;
+    }
+    fbText += 'The financial case for environmental credits is sensitive to how carbon price may change in future and your specific crop gross margin history. Please consider what proportion of years you experience low gross margins on your farm.';
   }
 
-  if (eoHigh >= 0.45) {
-    text += ` Environmental Outcome is strong (${pct(eoHigh)}% probability of High), reflecting positive ecosystem service and biodiversity co-benefits.`;
+  // --- Environmental Outcome narrative ---
+  let eoText = '';
+  if (eoH >= 0.45) {
+    eoText = ` On the environmental side, the outlook is positive — there is a ${pct(eoH)}% chance of High Environmental Outcome, reflecting likely ecosystem service and biodiversity co-benefits.`;
+  } else if (eoL >= 0.45) {
+    eoText = ` Environmental Outcome is also uncertain under this scenario — there is a ${pct(eoL)}% chance of Low environmental benefit, which is worth considering alongside the financial picture.`;
+  } else if (Math.max(eoH,eoM,eoL) - Math.min(eoH,eoM,eoL) < 0.12) {
+    eoText = ` Environmental outcomes are spread fairly evenly across High (${pct(eoH)}%), Medium (${pct(eoM)}%), and Low (${pct(eoL)}%) — there is real uncertainty about which outcome will be realised.`;
+  } else {
+    eoText = ` Environmental Outcome shows a mixed picture: High (${pct(eoH)}%), Medium (${pct(eoM)}%), and Low (${pct(eoL)}%).`;
   }
 
-  return `<div class="interp-box ${cls}">${text}</div>`;
+  return `<div class="interp-box ${cls}">${fbText}${eoText}</div>`;
 }
 
 function getRecommendation(result, ev) {
