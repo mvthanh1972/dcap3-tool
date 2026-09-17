@@ -550,7 +550,7 @@ const NODES = {
   Implementation_Costs: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method'], probs:[0.05,0.25,0.70, 0.35,0.55,0.10, 0.10,0.45,0.45] },
   Carbon_Price: { states:['High', 'Medium', 'Low'], parents:['Time_Period'], probs:[0.1,0.35,0.55,0.25,0.45,0.3,0.45,0.38,0.17,0.6,0.3,0.1] },
   Carbon_Credit_Value: { states:['High', 'Medium', 'Low'], parents:['Carbon_Sequestration', 'Implementation_Costs', 'Carbon_Price'], probs:[0.093,0.307,0.6,0.017,0.086,0.897,0.006,0.034,0.96,0.275,0.437,0.288,0.062,0.239,0.699,0.024,0.112,0.864,0.498,0.368,0.134,0.147,0.382,0.471,0.059,0.232,0.709,0.087,0.296,0.617,0.029,0.132,0.839,0.015,0.074,0.911,0.187,0.413,0.4,0.066,0.25,0.684,0.035,0.156,0.809,0.305,0.436,0.259,0.119,0.349,0.532,0.064,0.245,0.691,0.083,0.288,0.629,0.041,0.176,0.783,0.027,0.126,0.847,0.137,0.371,0.492,0.07,0.258,0.672,0.046,0.194,0.76,0.193,0.416,0.391,0.101,0.323,0.576,0.068,0.255,0.677] },
-  Opportunity_Cost: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method'], probs:[0.05,0.35,0.60, 0.50,0.35,0.15, 0.15,0.40,0.45] },
+  Opportunity_Cost: { states:['High', 'Medium', 'Low'], parents:['Carbon_Method', 'Summer_Crop_GM', 'Winter_Crop_GM'], probs:[0.0,0.01,0.99,0.02,0.06,0.92,0.05,0.11,0.84,0.02,0.06,0.92,0.05,0.11,0.84,0.08,0.15,0.77,0.05,0.11,0.84,0.08,0.15,0.77,0.1,0.2,0.7,0.7,0.2,0.1,0.55,0.2,0.25,0.4,0.2,0.4,0.55,0.2,0.25,0.4,0.2,0.4,0.25,0.2,0.55,0.4,0.2,0.4,0.25,0.2,0.55,0.1,0.2,0.7,0.6,0.3,0.1,0.48,0.27,0.25,0.35,0.25,0.4,0.48,0.27,0.25,0.35,0.25,0.4,0.22,0.23,0.55,0.35,0.25,0.4,0.22,0.23,0.55,0.1,0.2,0.7] },
   
   Environmental_Outcome: { states:['High', 'Medium', 'Low'], parents:['Ecosystem_Service_Benefit', 'Carbon_Sequestration'], probs:[0.717,0.210,0.073,0.583,0.294,0.123,0.457,0.356,0.187,0.423,0.377,0.200,0.307,0.406,0.287,0.207,0.406,0.387,0.227,0.406,0.367,0.147,0.373,0.480,0.087,0.306,0.607] },
   Financial_Benefit: { states:['High', 'Medium', 'Low'], parents:['Summer_Crop_GM', 'Carbon_Credit_Value', 'Winter_Crop_GM', 'Opportunity_Cost'], probs:[0.622,0.282,0.096,0.731,0.209,0.06,0.818,0.145,0.037,0.5,0.352,0.148,0.622,0.282,0.096,0.731,0.209,0.06,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.5,0.352,0.148,0.622,0.282,0.096,0.731,0.209,0.06,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.047,0.175,0.778,0.076,0.245,0.679,0.119,0.319,0.562,0.378,0.4,0.222,0.5,0.352,0.148,0.622,0.282,0.096,0.269,0.41,0.321,0.378,0.4,0.222,0.5,0.352,0.148,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.182,0.38,0.438,0.269,0.41,0.321,0.378,0.4,0.222,0.119,0.319,0.562,0.182,0.38,0.438,0.269,0.41,0.321,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.076,0.245,0.679,0.119,0.319,0.562,0.182,0.38,0.438,0.047,0.175,0.778,0.076,0.245,0.679,0.119,0.319,0.562,0.029,0.119,0.852,0.047,0.175,0.778,0.076,0.245,0.679] },
@@ -702,19 +702,18 @@ function getInterpretation(fb, eo, ev) {
 
   if (fbHigh >= 0.40) {
     cls = 'good';
-    text = `<strong>Favourable financial outlook.</strong> There is a ${pct(fbHigh)}% probability of High Financial Benefit under this scenario. `;
+    text = `<strong>Looks financially promising.</strong> There is a ${pct(fbHigh)}% probability of High Financial Benefit under this scenario. `;
     if (isTree) text += 'Despite the opportunity cost of tree planting, the combination of carbon credit value and crop income appears sufficient to generate strong returns.';
     else if (isSoilC) text += 'Soil Carbon\'s low opportunity cost allows crop income to contribute strongly to the overall financial outcome.';
   } else if (fbLow >= 0.55) {
     cls = 'caution';
-    text = `<strong>Financial risk is elevated.</strong> There is a ${pct(fbLow)}% probability of Low Financial Benefit under this scenario. `;
+    text = `<strong>Financial returns are more likely to be lower.</strong> There is a ${pct(fbLow)}% probability of Low Financial Benefit under this scenario. `;
     if (isTree && (isBalonne || isCH)) text += `This is consistent with the MS3bc finding that switching from cotton in ${isBalonne ? 'Balonne' : 'Central Highlands'} only shows value when ${isCH ? '60–80%' : '30–50%'} or more of years are low gross margin years.`;
     else text += 'Consider whether the proportion of low gross margin years on this property justifies the transition to environmental credits.';
     if (futureTP) text += ' Under future climate projections, rising carbon prices may partially offset declining crop margins — consider running the Towards 2070 scenario for comparison.';
   } else {
     cls = 'neutral';
-    text = `<strong>Mixed financial outlook.</strong> Financial Benefit is approximately equally distributed across High (${pct(fbHigh)}%), Medium (${pct(fb[1])}%), and Low (${pct(fbLow)}%) outcomes. `;
-    text += 'The financial case for environmental credits is sensitive to carbon price trajectory and local gross margin history. Recommend assessing the proportion of low gross margin years on the specific paddock.';
+    text = `<strong>Mixed financial outlook.</strong> Financial Benefit is fairly evenly spread across High (${pct(fbHigh)}%), Medium (${pct(fb[1])}%), and Low (${pct(fbLow)}%) outcomes. The financial case for environmental credits is sensitive to how carbon price may change in future and your specific crop gross margin history. Please consider what proportion of years you experience low gross margins on your farm.`;
   }
 
   if (eoHigh >= 0.45) {
@@ -727,32 +726,40 @@ function getInterpretation(fb, eo, ev) {
 function getRecommendation(result, ev) {
   const fb = result.Financial_Benefit;
   const eo = result.Environmental_Outcome;
-  const opc = result.Opportunity_Cost;
-  const ccv = result.Carbon_Credit_Value;
   const isTree = ev.Carbon_Method === 1;
   const isSoilC = ev.Carbon_Method === 0;
+  const isPasture = ev.Carbon_Method === 2;
   const fbDom = getDominantState(fb);
   const eoDom = getDominantState(eo);
 
   let rec = '';
 
   if (fbDom === 0 && eoDom === 0) {
-    rec = 'Both financial and environmental outcomes are favourable under this scenario. The proposed environmental credit scheme appears viable. Recommend proceeding to detailed site assessment and scheme eligibility check.';
+    rec = 'Both financial and environmental outcomes look promising under this scenario. The environmental credit scheme appears to be a worthwhile option worth exploring further. A good next step would be to arrange a site assessment and check your eligibility for the relevant scheme.';
   } else if (fbDom === 2 && eoDom === 0) {
-    rec = 'Environmental outcomes are strong but financial benefit is predominantly Low. ';
-    if (isTree) rec += 'The opportunity cost of permanent land diversion is the primary constraint. Consider whether Queensland Land Restoration Fund co-benefit payments ($47–$9,659/ha/yr) could offset this gap, or evaluate Soil Carbon as a lower-risk alternative.';
-    else rec += 'Consider whether rising carbon prices under future time periods would improve the financial case. Running a Towards 2030 or 2050 scenario may be informative.';
+    rec = 'The environmental benefits look strong under this scenario, but the financial returns are more likely to come in at a lower level. ';
+    if (isTree) {
+      rec += 'The main reason is the opportunity cost — permanently converting land to trees means giving up future cropping income, which can be significant in productive years. It may be worth comparing this against the Soil Carbon option, which lets you keep farming while still earning carbon credits. You could also look into whether Queensland Land Restoration Fund co-benefit payments might help bridge the financial gap.';
+    } else if (isPasture) {
+      rec += 'Consider whether improvements to pasture management are likely to generate enough carbon income to offset any reduction in grazing productivity on your land. Running a Towards 2030 scenario may show whether a rising carbon price changes the picture.';
+    } else {
+      rec += 'It may be worth running this scenario with a Towards 2030 or 2050 planning horizon to see whether higher projected carbon prices improve the financial case over time.';
+    }
   } else if (fbDom === 0 && eoDom === 2) {
-    rec = 'Financial benefit is strong but environmental outcomes are limited under this scenario. ';
-    rec += 'If environmental co-benefits are a priority (e.g., for LRF eligibility), consider Tree Planting as an alternative to Soil Carbon, noting the higher opportunity cost.';
+    rec = 'The financial returns look promising under this scenario, but the environmental benefits are more limited. ';
+    rec += 'If delivering environmental co-benefits matters for your goals — for example, if you are interested in the Land Restoration Fund — Tree Planting tends to deliver stronger environmental outcomes, though it does come with a higher opportunity cost due to land diversion.';
   } else {
-    rec = 'Both financial and environmental outcomes are uncertain under this scenario. ';
-    rec += 'Key variables driving this uncertainty are Carbon Credit Value (currently predominantly Low under average market conditions) and Opportunity Cost. ';
-    if (isTree) rec += 'Reassess when carbon prices are better established, or compare with Soil Carbon method which carries lower opportunity cost.';
-    else rec += 'Monitor carbon market developments. The financial case for Soil Carbon improves significantly if ACCU prices reach the High state (>$50/ACCU).';
+    rec = 'Both financial and environmental outcomes are uncertain under this scenario. Key variables driving this uncertainty are the Carbon Credit Value (currently predominantly low under average market conditions) and the Opportunity Cost of not cropping. Monitor carbon market developments. ';
+    if (isSoilC) {
+      rec += 'The financial case for Soil Carbon improves significantly if the ACCU prices reach the High state (>$50/ACCU). Running a Towards 2030 or 2050 scenario may be informative.';
+    } else if (isTree) {
+      rec += 'It may be worth revisiting this when carbon prices are more established, or comparing with the Soil Carbon option which carries a lower opportunity cost given you can continue cropping.';
+    } else {
+      rec += 'Running a Towards 2030 or 2050 scenario may show how the financial case changes as carbon markets develop.';
+    }
   }
 
-  return `<div class="rec-box"><h4>Recommended action</h4><p>${rec}</p></div>`;
+  return `<div class="rec-box"><h4>Consideration for action</h4><p>${rec}</p></div>`;
 }
 
 function renderIntermediates(result) {
@@ -858,9 +865,7 @@ function runInference() {
 
           ${getRecommendation(result, evidence)}
 
-          <p style="font-size:0.7rem;color:var(--muted);margin-top:14px;line-height:1.5">
-            <strong>Note:</strong> Results are probabilistic estimates from DCAP3 BBN model. Financial Benefit integrates crop gross margins, carbon credit value, and opportunity cost. Environmental Outcome integrates ecosystem service benefit, biodiversity credit value, and carbon sequestration. State definitions: High Financial Benefit &gt;$100/ha/yr net; Medium $40–100; Low &lt;$40. Switching threshold from MS3bc: $57/ha/yr average gross margin (no ESB); $101/ha/yr with +10% ESB. Climate CPTs were parameterised using BoM data (IDCJAC0001/0002, 1981–2019). Soil Moisture was validated using the CSIRO Indra API, and Carbon Credit Value was derived from the MS3bc PEV equation. This tool is for decision-support purposes only. Results are probabilistic and should be interpreted alongside professional agronomic and financial advice.
-          </p>
+          
         </div>`;
 
     } catch(e) {
